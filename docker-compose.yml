@@ -1,0 +1,17 @@
+version: "2"
+services:
+  app:
+    build:
+        context: .
+        dockerfile: Dockerfile
+    environment:
+      - CONSUMER_KEY=${CONSUMER_KEY}
+      - CONSUMER_SECRET=${CONSUMER_SECRET}
+      - ACCESS_TOKEN=${ACCESS_TOKEN}
+      - ACCESS_SECRET=${ACCESS_SECRET}
+    volumes:
+      - .:/go/src/go-giveaways
+    ports:
+      - "8081:8081"
+    working_dir: /go/src/go-giveaways
+    command: sh -c "go mod tidy && go run main.go"
