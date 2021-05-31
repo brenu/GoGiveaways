@@ -16,12 +16,7 @@ func main() {
 
 	client := twitter.NewClient(httpClient)
 
-	// Send a Tweet
-	tweet, resp, err := client.Statuses.Update("just setting up my twttr", nil)
+	newGames := GamesLookUp()
 
-	if err != nil {
-		log.Fatalf(fmt.Sprint("Bad news here, reason: ", err.Error()))
-	}
-
-	log.Output(1, fmt.Sprintf(tweet.FullText, resp))
+	log.Output(1, fmt.Sprint(client, newGames))
 }
