@@ -4,10 +4,29 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
 )
+
+func handleNewGiveaways(lastGiveaway GiveAway, twitterClient *twitter.Client) GiveAway {
+	newGiveaways := GamesLookUp()
+
+	if lastGiveaway.ID == 0 {
+		newLastGiveaway := newGiveaways[len(newGiveaways)-1]
+
+		tweetString := fmt.Sprintf("%s - %s\n\nAvailable on: %s", newLastGiveaway.Title, newLastGiveaway.Platforms, newLastGiveaway.GamerpowerURL)
+
+		_, _, err := twitterClient.Statuses.Update(tweetString, &twitter.StatusUpdateParams{})
+
+		if err != nil {
+			log.Fatalf(fmt.Sprint("Bad news here, reason: ", err.Error()))
+		}
+	}
+
+	return newGiveaways[len(newGiveaways)-1]
+}
 
 func main() {
 	config := oauth1.NewConfig(os.Getenv("CONSUMER_KEY"), os.Getenv("CONSUMER_SECRET"))
@@ -16,7 +35,13 @@ func main() {
 
 	client := twitter.NewClient(httpClient)
 
-	newGames := GamesLookUp()
+	var lastGiveaway GiveAway
+	lastGiveaway = handleNewGiveaways(lastGiveaway, client)
 
-	log.Output(1, fmt.Sprint(client, newGames))
+	for {
+		select {
+		case <-time.After(time.Minute):
+			lastGiveaway = handleNewGiveaways(lastGiveaway, client)
+		}
+	}
 }
