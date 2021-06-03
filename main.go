@@ -36,7 +36,7 @@ func handleNewGiveaways(lastGiveaway GiveAway, httpClient *http.Client) GiveAway
 	newGiveaways, err := GamesLookUp()
 
 	if err != nil {
-		log.Fatalf(fmt.Sprint("Bad news here, reason: ", err.Error()))
+		log.Printf(fmt.Sprint("Bad news here, reason: ", err.Error()))
 		return lastGiveaway
 	}
 
@@ -51,7 +51,7 @@ func handleNewGiveaways(lastGiveaway GiveAway, httpClient *http.Client) GiveAway
 		_, _, err := twitterClient.Statuses.Update(tweetString, &twitter.StatusUpdateParams{MediaIds: []int64{imageID}})
 
 		if err != nil {
-			log.Fatalf(fmt.Sprint("Bad news here, reason: ", err.Error()))
+			log.Printf(fmt.Sprint("Bad news here, reason: ", err.Error()))
 			return lastGiveaway
 		}
 	} else if lastGiveaway.ID != newGiveaways[0].ID {
@@ -67,7 +67,7 @@ func handleNewGiveaways(lastGiveaway GiveAway, httpClient *http.Client) GiveAway
 			_, _, err := twitterClient.Statuses.Update(tweetString, &twitter.StatusUpdateParams{MediaIds: []int64{imageID}})
 
 			if err != nil {
-				log.Fatalf(fmt.Sprint("Bad news here, reason: ", err.Error()))
+				log.Printf(fmt.Sprint("Bad news here, reason: ", err.Error()))
 				return lastGiveaway
 			}
 		}
@@ -80,13 +80,13 @@ func handleImagePost(imageURL string, httpClient *http.Client) int64 {
 	res, err := http.Get(imageURL)
 
 	if err != nil || res.StatusCode != 200 {
-		log.Fatalf(fmt.Sprint("Bad news here, reason: ", err.Error()))
+		log.Printf(fmt.Sprint("Bad news here, reason: ", err.Error()))
 		return 0
 	}
 	defer res.Body.Close()
 	m, _, err := image.Decode(res.Body)
 	if err != nil {
-		log.Fatalf(fmt.Sprint("Bad news here, reason: ", err.Error()))
+		log.Printf(fmt.Sprint("Bad news here, reason: ", err.Error()))
 		return 0
 	}
 
@@ -103,7 +103,7 @@ func handleImagePost(imageURL string, httpClient *http.Client) int64 {
 	resp, err := httpClient.PostForm("https://upload.twitter.com/1.1/media/upload.json?media_category=tweet_image", form)
 
 	if err != nil {
-		log.Fatalf(fmt.Sprint("Bad news here, reason: ", err.Error()))
+		log.Printf(fmt.Sprint("Bad news here, reason: ", err.Error()))
 		return 0
 	}
 
@@ -112,7 +112,7 @@ func handleImagePost(imageURL string, httpClient *http.Client) int64 {
 	body, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {
-		log.Fatalf(fmt.Sprint("Bad news here, reason: ", err.Error()))
+		log.Printf(fmt.Sprint("Bad news here, reason: ", err.Error()))
 		return 0
 	}
 
