@@ -33,10 +33,16 @@ type TwitterImage struct {
 
 func handleNewGiveaways(lastGiveaway GiveAway, httpClient *http.Client) GiveAway {
 	twitterClient := twitter.NewClient(httpClient)
-	newGiveaways := GamesLookUp()
+	newGiveaways, err := GamesLookUp()
+
+	if err != nil {
+		log.Fatalf(fmt.Sprint("Bad news here, reason: ", err.Error()))
+		return lastGiveaway
+	}
+
+	newLastGiveaway := newGiveaways[0]
 
 	if lastGiveaway.ID == 0 {
-		newLastGiveaway := newGiveaways[0]
 
 		imageID := handleImagePost(newLastGiveaway.Image, httpClient)
 
@@ -46,19 +52,23 @@ func handleNewGiveaways(lastGiveaway GiveAway, httpClient *http.Client) GiveAway
 
 		if err != nil {
 			log.Fatalf(fmt.Sprint("Bad news here, reason: ", err.Error()))
+			return lastGiveaway
 		}
-	} else if lastGiveaway.ID != newGiveaways[len(newGiveaways)-1].ID {
+	} else if lastGiveaway.ID != newGiveaways[0].ID {
 		newGiveawaysLength := len(newGiveaways)
+
+		imageID := handleImagePost(newLastGiveaway.Image, httpClient)
 
 		for i := 0; i < newGiveawaysLength && newGiveaways[i].ID != lastGiveaway.ID; i++ {
 			newLastGiveaway := newGiveaways[i]
 
 			tweetString := fmt.Sprintf("%s - %s\n\nAvailable on: %s", newLastGiveaway.Title, newLastGiveaway.Platforms, newLastGiveaway.GamerpowerURL)
 
-			_, _, err := twitterClient.Statuses.Update(tweetString, &twitter.StatusUpdateParams{})
+			_, _, err := twitterClient.Statuses.Update(tweetString, &twitter.StatusUpdateParams{MediaIds: []int64{imageID}})
 
 			if err != nil {
 				log.Fatalf(fmt.Sprint("Bad news here, reason: ", err.Error()))
+				return lastGiveaway
 			}
 		}
 	}
@@ -70,12 +80,14 @@ func handleImagePost(imageURL string, httpClient *http.Client) int64 {
 	res, err := http.Get(imageURL)
 
 	if err != nil || res.StatusCode != 200 {
-		// handle errors
+		log.Fatalf(fmt.Sprint("Bad news here, reason: ", err.Error()))
+		return 0
 	}
 	defer res.Body.Close()
 	m, _, err := image.Decode(res.Body)
 	if err != nil {
-		// handle error
+		log.Fatalf(fmt.Sprint("Bad news here, reason: ", err.Error()))
+		return 0
 	}
 
 	form := url.Values{}
@@ -92,6 +104,7 @@ func handleImagePost(imageURL string, httpClient *http.Client) int64 {
 
 	if err != nil {
 		log.Fatalf(fmt.Sprint("Bad news here, reason: ", err.Error()))
+		return 0
 	}
 
 	defer resp.Body.Close()
@@ -100,6 +113,7 @@ func handleImagePost(imageURL string, httpClient *http.Client) int64 {
 
 	if err != nil {
 		log.Fatalf(fmt.Sprint("Bad news here, reason: ", err.Error()))
+		return 0
 	}
 
 	var imageResponse TwitterImage

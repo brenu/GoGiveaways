@@ -2,9 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 )
 
@@ -29,11 +27,11 @@ type GiveAway struct {
 }
 
 // GamesLookUp is the method that consumes the GamerPower API looking for new free games
-func GamesLookUp() []GiveAway {
+func GamesLookUp() ([]GiveAway, error) {
 	resp, err := http.Get("https://www.gamerpower.com/api/giveaways")
 
 	if err != nil {
-		log.Fatalf(fmt.Sprint("Bad news here, reason: ", err.Error()))
+		return nil, err
 	}
 
 	defer resp.Body.Close()
@@ -41,7 +39,7 @@ func GamesLookUp() []GiveAway {
 	body, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {
-		log.Fatalf(fmt.Sprint("Bad news here, reason: ", err.Error()))
+		return nil, err
 	}
 
 	var giveawaysResponse []GiveAway
@@ -49,8 +47,8 @@ func GamesLookUp() []GiveAway {
 	err = json.Unmarshal(body, &giveawaysResponse)
 
 	if err != nil {
-		log.Fatalf(fmt.Sprint("Bad news here, reason: ", err.Error()))
+		return nil, err
 	}
 
-	return giveawaysResponse
+	return giveawaysResponse, nil
 }
