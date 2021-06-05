@@ -57,10 +57,10 @@ func handleNewGiveaways(lastGiveaway GiveAway, httpClient *http.Client) GiveAway
 	} else if lastGiveaway.ID != newGiveaways[0].ID {
 		newGiveawaysLength := len(newGiveaways)
 
-		imageID := handleImagePost(newLastGiveaway.Image, httpClient)
-
-		for i := 0; i < newGiveawaysLength && newGiveaways[i].ID != lastGiveaway.ID; i++ {
+		for i := 0; i < newGiveawaysLength && newGiveaways[i].ID > lastGiveaway.ID; i++ {
 			newLastGiveaway := newGiveaways[i]
+
+			imageID := handleImagePost(newLastGiveaway.Image, httpClient)
 
 			tweetString := fmt.Sprintf("%s - %s\n\nAvailable on: %s", newLastGiveaway.Title, newLastGiveaway.Platforms, newLastGiveaway.GamerpowerURL)
 
