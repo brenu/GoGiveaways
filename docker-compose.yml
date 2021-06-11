@@ -11,7 +11,5 @@ services:
       - ACCESS_SECRET=${ACCESS_SECRET}
     volumes:
       - .:/go/src/go-giveaways
-    ports:
-      - "8081:8081"
     working_dir: /go/src/go-giveaways
-    command: sh -c "go mod tidy && go run *.go"
+    command: sh -c "go mod tidy && go run cmd/go_giveaways/main.go"
