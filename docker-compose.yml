@@ -12,4 +12,4 @@ services:
     volumes:
       - .:/go/src/go-giveaways
     working_dir: /go/src/go-giveaways
-    command: sh -c "go mod tidy && go run cmd/go_giveaways/main.go"
+    command: sh -c "apk add build-base && go mod tidy && go test ./... && go run cmd/go_giveaways/main.go"

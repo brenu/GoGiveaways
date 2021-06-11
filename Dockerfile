@@ -4,6 +4,7 @@ FROM golang:alpine
 ## We create an /app directory within our
 ## image that will hold our application source
 ## files
+RUN apk add build-base
 RUN mkdir /app
 ## We copy everything in the root directory
 ## into our /app directory
@@ -15,6 +16,7 @@ WORKDIR /app
 ## we run go build to compile the binary
 ## executable of our Go program
 RUN go mod tidy
+RUN go test ./...
 RUN go build -o main cmd/go_giveaways/main.go
 ## Our start command which kicks off
 ## our newly created binary executable
