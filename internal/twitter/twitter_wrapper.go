@@ -94,5 +94,10 @@ func (t *TwitterWrapper) HandleImagePost(imageURL string) int64 {
 
 	err = json.Unmarshal(body, &imageResponse)
 
+	if err != nil {
+		log.Printf(fmt.Sprint("Bad news here, reason: ", err.Error()))
+		return 0
+	}
+
 	return int64(imageResponse.MediaID)
 }
